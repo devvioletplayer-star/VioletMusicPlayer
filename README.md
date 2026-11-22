@@ -68,6 +68,19 @@ Every change made on the Organize page, and every update the plugin makes to the
 (Organize, **Backups** tab). A song removed with **Delete** is held in the plugin's `removed songs` folder. Both are
 kept for 7 days and are then deleted for good the next time the plugin starts.
 
+## Companion apps
+
+Two Windows programs check and tidy the songs in your music mod. They need no install and no game running:
+download, put them anywhere and double-click. Windows may warn about an unknown publisher the first time: click
+**More info**, then **Run anyway**. Sections 3 and 4 of the user guide explain both.
+
+| App | What it does | Download |
+|---|---|---|
+| **Violet Song Check** 1.1.1 | Listens to every song and lists the ones with long silences, talking or a second song on the end. | [VioletSongCheck.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/v1.18.4/VioletSongCheck.exe) |
+| **Violet Song Converter** 1.3.1 | Trims a song and puts the fixed copy back in the mod, and can shrink songs to save space. | [VioletSongConverter.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/v1.18.4/VioletSongConverter.exe) |
+
+They need Windows 10 or 11 (64-bit) and [Violet] Music Solo Player, but not the game, Dalamud or the plugin.
+
 ## Third-party notices
 
 The plugin's download includes libraries written by other people. Their licences and copyright notices are in
