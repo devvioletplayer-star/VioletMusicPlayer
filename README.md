@@ -71,8 +71,16 @@ kept for 7 days and are then deleted for good the next time the plugin starts.
 ## Companion apps
 
 Two Windows programs check and tidy the songs in your music mod. They need no install and no game running:
-download, put them anywhere and double-click. Windows may warn about an unknown publisher the first time: click
-**More info**, then **Run anyway**. Sections 3 and 4 of the user guide explain both.
+download, put them anywhere and double-click. Sections 3 and 4 of the user guide explain both.
+
+The apps are not code-signed, so expect two warnings. Both are normal for a small program from a new publisher:
+
+- **When downloading:** your browser may say the file "isn't commonly downloaded" and hold it back. In the browser's
+  downloads list, click the three dots (**...**) beside the file and choose **Keep**. If it asks again, open the
+  choice that offers **Delete** and pick **Save** (or **Keep anyway**) instead. The wording differs a little from
+  browser to browser.
+- **When running it the first time:** Windows may warn about an unknown publisher. Click **More info**, then
+  **Run anyway**.
 
 | App | What it does | Download |
 |---|---|---|
