@@ -24,7 +24,14 @@ Songs are your own: add them to [Violet] Music Solo Player with **Soundy**.
 
 - [XIVLauncher](https://goatcorp.github.io/) with Dalamud
 - [Penumbra](https://github.com/xivdev/Penumbra)
-- Soundy, to add songs
+- Soundy, a separate plugin by another author, to add songs. Add this link under **Custom Plugin Repositories**
+  (`/xlsettings`, **Experimental**) and install **Soundy** from `/xlplugins`:
+  ```
+  https://raw.githubusercontent.com/lnjanos/peepingtim/refs/heads/master/SamplePlugin/yuck.json
+  ```
+
+The plugin's **Help** tab opens the user guide and the companion apps' downloads, and has a button that copies
+Soundy's link.
 
 ## Installing
 
