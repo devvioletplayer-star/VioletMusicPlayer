@@ -67,3 +67,8 @@ Soundy into song groups named after their instrument (for example "Keyboard Cove
 Every change made on the Organize page, and every update the plugin makes to the mod, saves a backup first
 (Organize, **Backups** tab). A song removed with **Delete** is held in the plugin's `removed songs` folder. Both are
 kept for 7 days and are then deleted for good the next time the plugin starts.
+
+## Third-party notices
+
+The plugin's download includes libraries written by other people. Their licences and copyright notices are in
+[THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
