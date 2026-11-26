@@ -48,4 +48,4 @@ setting. Violet Song Check opens the finished spreadsheet when it is done.
 
 The source in this folder (Violet Song Check and Violet Song Converter) is under the MIT License: see
 [LICENSE](LICENSE). It covers these two apps only, not the Violet Music Player plugin. The libraries the apps use
-remain under their own licences.
+remain under their own licences, listed in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
