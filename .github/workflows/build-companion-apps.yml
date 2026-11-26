@@ -1,0 +1,170 @@
+# Builds Violet Song Check and Violet Song Converter from the source in apps/.
+#
+# - Every change under apps/ is built, so a change that does not compile is caught at once.
+#   The two .exe files and their SHA-256 hashes are kept with the run ("Artifacts").
+# - "Run workflow" with "Publish" ticked also puts the two .exe files on a release.
+#   That release is never marked "latest": the plugin's install link downloads latest.zip
+#   from the latest release, so the latest release must always be a plugin release.
+name: Build companion apps
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - '.github/workflows/build-companion-apps.yml'
+  pull_request:
+    paths:
+      - 'apps/**'
+      - '.github/workflows/build-companion-apps.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish the two .exe files as a release (never marked latest)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: companion-apps-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write       # only used by the Publish steps, to create the release
+      id-token: write       # build provenance
+      attestations: write   # build provenance
+    env:
+      DOTNET_NOLOGO: 'true'
+      DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Read the version numbers
+        id: ver
+        shell: pwsh
+        run: |
+          function Get-AppVersion($csproj) {
+            $v = (Select-Xml -Path $csproj -XPath '/Project/PropertyGroup/Version').Node.InnerText
+            if (-not $v) { throw "No <Version> in $csproj" }
+            $v.Trim()
+          }
+          $check = Get-AppVersion 'apps/VioletSongCheck/VioletSongCheck.csproj'
+          $conv  = Get-AppVersion 'apps/VioletSongConverter/VioletSongConverter.csproj'
+          "check=$check"   >> $env:GITHUB_OUTPUT
+          "converter=$conv" >> $env:GITHUB_OUTPUT
+          "tag=apps-check-$check-converter-$conv" >> $env:GITHUB_OUTPUT
+
+      # The same command as BuildPortable.bat in each app's folder.
+      - name: Build Violet Song Check
+        run: >
+          dotnet publish apps/VioletSongCheck/VioletSongCheck.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          -o out/check
+
+      - name: Build Violet Song Converter
+        run: >
+          dotnet publish apps/VioletSongConverter/VioletSongConverter.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          -o out/converter
+
+      - name: Collect the files and their hashes
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item out/check/VioletSongCheck.exe dist/
+          Copy-Item out/converter/VioletSongConverter.exe dist/
+          $lines = Get-ChildItem dist/*.exe | Sort-Object Name | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          }
+          $lines | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+          $lines
+          "### Built from commit $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          '```' >> $env:GITHUB_STEP_SUMMARY
+          $lines >> $env:GITHUB_STEP_SUMMARY
+          '```' >> $env:GITHUB_STEP_SUMMARY
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: companion-apps
+          path: dist/
+          if-no-files-found: error
+
+      - name: Record build provenance
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: 'dist/*.exe'
+
+      - name: Publish the release
+        if: github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          CHECK: ${{ steps.ver.outputs.check }}
+          CONVERTER: ${{ steps.ver.outputs.converter }}
+        run: |
+          $repo = $env:GITHUB_REPOSITORY
+
+          gh release view $env:TAG --repo $repo *> $null
+          if ($LASTEXITCODE -eq 0) {
+            throw "Release $($env:TAG) already exists. Raise <Version> in the app's .csproj before publishing again."
+          }
+
+          # Remember which release is "latest" now (the plugin's install link depends on it).
+          $before = gh api "repos/$repo/releases/latest" --jq .tag_name
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the latest release.' }
+
+          $run = "$env:GITHUB_SERVER_URL/$repo/actions/runs/$env:GITHUB_RUN_ID"
+          $notes = @(
+            "Violet Song Check $($env:CHECK) and Violet Song Converter $($env:CONVERTER)."
+            ""
+            "Built by GitHub Actions from the source in ``apps/`` at commit $env:GITHUB_SHA."
+            "Build log: $run"
+            ""
+            "SHA-256:"
+            '```'
+            (Get-Content dist/SHA256SUMS.txt)
+            '```'
+            ""
+            "To check that a downloaded file is the one built here: ``gh attestation verify VioletSongCheck.exe --repo $repo``"
+            ""
+            "This release holds the companion apps only. The plugin is installed in game; see the README."
+          ) -join "`n"
+          $notes | Set-Content -Encoding utf8 notes.md
+
+          gh release create $env:TAG dist/VioletSongCheck.exe dist/VioletSongConverter.exe dist/SHA256SUMS.txt `
+            --repo $repo --target $env:GITHUB_SHA --latest=false `
+            --title "Companion apps: Song Check $($env:CHECK), Song Converter $($env:CONVERTER)" `
+            --notes-file notes.md
+          if ($LASTEXITCODE -ne 0) { throw 'Creating the release failed.' }
+
+          # The latest release must not have moved, and must still hold latest.zip.
+          $after = gh api "repos/$repo/releases/latest" --jq .tag_name
+          if ($after -ne $before) {
+            Write-Warning "The latest release moved from $before to $after. Putting it back."
+            gh release edit $before --repo $repo --latest
+            $after = gh api "repos/$repo/releases/latest" --jq .tag_name
+          }
+          $assets = gh api "repos/$repo/releases/latest" --jq '.assets[].name'
+          if ($after -ne $before -or ($assets -notcontains 'latest.zip')) {
+            throw "The latest release is $after and must be $before with latest.zip. Fix this on the Releases page now: the plugin's install link depends on it."
+          }
+          "Published $($env:TAG). Latest release is still $after." >> $env:GITHUB_STEP_SUMMARY
