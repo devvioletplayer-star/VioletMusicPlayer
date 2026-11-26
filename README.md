@@ -80,6 +80,11 @@ kept for 7 days and are then deleted for good the next time the plugin starts.
 Two Windows programs check and tidy the songs in your music mod. They need no install and no game running:
 download, put them anywhere and double-click. Sections 3 and 4 of the user guide explain both.
 
+**Their source is in this repository, in [`apps`](apps), and the downloads below are built from it by GitHub**, not
+uploaded from a PC. The [release page](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/tag/apps-check-1.1.1-converter-1.3.1)
+names the commit, links to the build log and lists each file's SHA-256, and [`apps/README.md`](apps/README.md)
+says how to check a download against it.
+
 The apps are not code-signed, so expect two warnings. Both are normal for a small program from a new publisher:
 
 - **When downloading:** your browser may say the file "isn't commonly downloaded" and hold it back. In the browser's
@@ -89,12 +94,13 @@ The apps are not code-signed, so expect two warnings. Both are normal for a smal
 - **When running it the first time:** Windows may warn about an unknown publisher. Click **More info**, then
   **Run anyway**.
 
-| App | What it does | Download |
-|---|---|---|
-| **Violet Song Check** 1.1.1 | Listens to every song and lists the ones with long silences, talking or a second song on the end. | [VioletSongCheck.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/v1.18.4/VioletSongCheck.exe) |
-| **Violet Song Converter** 1.3.1 | Trims a song and puts the fixed copy back in the mod, and can shrink songs to save space. | [VioletSongConverter.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/v1.18.4/VioletSongConverter.exe) |
+| App | What it does | Download | Source |
+|---|---|---|---|
+| **Violet Song Check** 1.1.1 | Listens to every song and lists the ones with long silences, talking or a second song on the end. | [VioletSongCheck.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/apps-check-1.1.1-converter-1.3.1/VioletSongCheck.exe) | [apps/VioletSongCheck](apps/VioletSongCheck) |
+| **Violet Song Converter** 1.3.1 | Trims a song and puts the fixed copy back in the mod, and can shrink songs to save space. | [VioletSongConverter.exe](https://github.com/devvioletplayer-star/VioletMusicPlayer/releases/download/apps-check-1.1.1-converter-1.3.1/VioletSongConverter.exe) | [apps/VioletSongConverter](apps/VioletSongConverter) |
 
 They need Windows 10 or 11 (64-bit) and [Violet] Music Solo Player, but not the game, Dalamud or the plugin.
+
 
 ## Third-party notices
 
